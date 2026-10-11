@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Leaderboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="contenedor">
+    <header class="cabecera">
+      <h1>Leaderboard</h1>
+      <div class="acciones">
+        <span class="sello">Top 6</span>
+        <button id="reiniciar-grande" class="btn-enfocar btn-reiniciar-grande" type="button">↺ Reiniciar</button>
+        <button id="enfocar" class="btn-enfocar" type="button">⛶ Ampliar</button>
+        <button id="finalizar" class="btn-enfocar btn-finalizar" type="button">🏁 Finalizar</button>
+      </div>
+    </header>
+
+    <ol id="leaderboard" class="leaderboard"></ol>
+
+    <div id="banca" class="banca-slot"></div>
+
+    <button id="reiniciar" class="reiniciar">Reiniciar</button>
+  </main>
+
+  <!-- Selector de grupo -->
+  <div id="selector" class="selector">
+    <div id="menu-grupo" class="menu-grupo">
+      <button type="button" data-grupo="1" style="--i:2">1</button>
+      <button type="button" data-grupo="2" style="--i:1">2</button>
+      <button type="button" data-grupo="3" style="--i:0">3</button>
+    </div>
+    <button id="btn-grupo" class="btn-grupo" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Cambiar de grupo">
+      <small>Grupo</small><b id="num-grupo">2</b>
+    </button>
+  </div>
+
+  <!-- Animación al cambiar de grupo -->
+  <div id="transicion" class="transicion" aria-hidden="true">
+    <div class="cortina izq"></div>
+    <div class="cortina der"></div>
+    <div class="t-linea"></div>
+    <div class="t-anillo"></div>
+    <div class="t-centro"><small>Grupo</small><b id="t-numero">2</b></div>
+  </div>
+
+  <!-- Pantalla final / podio -->
+  <section id="final" class="final" aria-hidden="true">
+    <div class="rayos"></div>
+    <canvas id="confeti"></canvas>
+    <div id="cuenta" class="cuenta"></div>
+    <div id="destello" class="destello"></div>
+
+    <div id="final-contenido" class="final-contenido">
+      <div class="final-titulo">
+        <small id="final-sub">Resultados finales</small>
+        <h2>Podio</h2>
+      </div>
+
+      <div id="podio" class="podio"></div>
+      <div id="resto" class="resto"></div>
+
+      <div class="final-acciones">
+        <button id="volver" class="btn-enfocar" type="button">← Volver al marcador</button>
+        <button id="nueva" class="btn-enfocar btn-primario" type="button">↺ Nueva carrera</button>
+      </div>
+    </div>
+
+    <button id="saltar" class="btn-enfocar saltar" type="button">Saltar ›</button>
+  </section>
+
+  <div id="efectos"></div>
+  <script src="script.js"></script>
+</body>
+</html>

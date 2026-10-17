@@ -1017,3 +1017,297 @@ body.grande .sello { font-size: clamp(.8rem, 2vmin, 1.2rem); }
   box-shadow: 0 0 70px rgba(0, 0, 0, .5);
   z-index: -1;
 }
+/* =========================================================
+   IGNORANCE: DIABLITO RIÉNDOSE Y GIRO SORPRESA (TRISTE)
+   ========================================================= */
+
+/* En la animación de cambio de grupo solo se ve el número, sin la palabra "Grupo" */
+.t-centro small { display: none; }
+
+.puesto { position: relative; }
+
+/* Espacio sobre la tarjeta: ahí va la corona y/o el diablito */
+.slot-cara {
+  position: relative;
+  isolation: isolate;
+  align-self: center;
+  width: clamp(70px, 16vmin, 140px);
+  height: clamp(78px, 17.5vmin, 156px);
+  margin-bottom: 6px;
+}
+.slot-cara .corona {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  margin: 0 0 0 calc(clamp(34px, 7vmin, 64px) / -2);
+}
+
+/* ---------- Diablito ---------- */
+.diablo {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  opacity: 0;
+  transform: scale(0);
+  transform-origin: 50% 85%;
+  filter: drop-shadow(0 0 14px rgba(255, 50, 50, .75));
+}
+.diablo .boca { transform-box: fill-box; transform-origin: 50% 0; }
+
+/* Cuándo aparece:
+   - si Ignorance queda 2º o 3º: junto con su puesto
+   - si Ignorance gana: en el giro triste, reemplazando a la corona */
+.puesto.ign:not(.ign-gana).visible { --ret: 1.1s; }
+.final.apagon .puesto.ign-gana     { --ret: .3s; }
+
+.puesto.ign:not(.ign-gana).visible .diablo,
+.final.apagon .puesto.ign-gana .diablo {
+  animation:
+    diablo-sale .55s cubic-bezier(.2, 1.6, .4, 1) var(--ret) both,
+    diablo-risa .42s ease-in-out calc(var(--ret) + .55s) infinite alternate;
+}
+.puesto.ign:not(.ign-gana).visible .diablo .boca,
+.final.apagon .puesto.ign-gana .diablo .boca {
+  animation: boca-risa .21s ease-in-out calc(var(--ret) + .55s) infinite alternate;
+}
+@keyframes diablo-sale { to { opacity: 1; transform: scale(1); } }
+@keyframes diablo-risa {
+  from { transform: scale(1) rotate(-5deg) translateY(0); }
+  to   { transform: scale(1.05) rotate(5deg) translateY(-5px); }
+}
+@keyframes boca-risa {
+  from { transform: scaleY(.85); }
+  to   { transform: scaleY(1.25); }
+}
+
+/* ---------- JAJAJA detrás del diablito ---------- */
+.risas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+}
+.puesto.ign:not(.ign-gana).visible .risas,
+.final.apagon .puesto.ign-gana .risas {
+  animation: risas-entran .4s ease var(--ret) both;
+}
+@keyframes risas-entran { to { opacity: 1; } }
+
+.risa {
+  position: absolute;
+  display: flex;
+  white-space: nowrap;
+  font-family: var(--titulo);
+  font-weight: 800;
+  font-style: italic;
+  font-size: clamp(.9rem, 2.9vmin, 1.9rem);
+  letter-spacing: .04em;
+  color: #ff4141;
+  text-shadow: 0 0 12px rgba(255, 40, 40, .8), 0 2px 0 #4a0508;
+  transform: rotate(var(--r)) scale(var(--s));
+}
+.risa b {
+  display: inline-block;
+  font-weight: inherit;
+  animation: ja .5s ease-in-out infinite alternate;
+  animation-delay: calc(var(--n) * .12s + var(--d));
+}
+@keyframes ja {
+  from { transform: translateY(0) scale(1) rotate(-5deg); }
+  to   { transform: translateY(-8px) scale(1.28) rotate(5deg); }
+}
+
+/* =========================================================
+   GIRO TRISTE (solo cuando gana Ignorance)
+   ========================================================= */
+.final { transition: background 1.4s ease; }
+.final.apagon { background: rgba(0, 6, 20, .97); }
+
+/* Viñeta oscura que se cierra */
+.final::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(circle at 50% 40%, transparent 30%, rgba(0, 0, 0, .7) 100%);
+  transition: opacity 1.4s ease;
+}
+.final.apagon::after { opacity: 1; }
+
+/* Todo pierde el color (el diablito y los JAJAJA conservan el suyo) */
+.pedestal, .ganador, .resto-item { transition: filter 1.4s ease; }
+.final-titulo { transition: opacity .8s ease, transform .8s ease, filter 1.4s ease; }
+.final.apagon .pedestal,
+.final.apagon .ganador,
+.final.apagon .final-titulo,
+.final.apagon .resto-item { filter: grayscale(.92) brightness(.72); }
+
+/* La corona se cae y la tarjeta de Ignorance se hunde */
+.final.apagon .puesto.ign-gana .slot-cara .corona { animation: corona-fuera .45s ease forwards; }
+@keyframes corona-fuera {
+  to { opacity: 0; transform: translateY(26px) scale(.5) rotate(20deg); }
+}
+.final.apagon .puesto.ign-gana .ganador.es-ign { animation: hundir 2.2s ease forwards; }
+@keyframes hundir {
+  to { transform: translateY(8px) rotate(-1.5deg) scale(.97); }
+}
+
+/* Relámpago */
+.destello.rayo {
+  background: #dbe7ff;
+  animation: relampago .9s ease-out;
+}
+@keyframes relampago {
+  0%   { opacity: .9; }
+  10%  { opacity: 0; }
+  18%  { opacity: .65; }
+  100% { opacity: 0; }
+}
+
+/* Al saltar la animación, todo aparece de golpe */
+.final.rapido .puesto.ign { --ret: 0s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .puesto.ign:not(.ign-gana).visible .diablo,
+  .puesto.ign:not(.ign-gana).visible .risas,
+  .final.apagon .puesto.ign-gana .diablo,
+  .final.apagon .puesto.ign-gana .risas { opacity: 1; transform: none; }
+  .final.apagon .puesto.ign-gana .slot-cara .corona { opacity: 0; }
+}
+/* ---------- Quitar textos ---------- */
+.final-titulo small { display: none; }     /* texto de arriba de "Podio" */
+.btn-grupo small { display: none; }        /* "Grupo" del botón: solo queda el número */
+.btn-grupo b { font-size: 1.35rem; }
+
+/* ---------- Orejas de burro (todos, cuando gana Ignorance) ---------- */
+.ganador.con-orejas {
+  position: relative;
+  margin-top: clamp(20px, 4.8vmin, 44px);   /* espacio para las orejas */
+}
+.resto-item.con-orejas { position: relative; margin-top: 18px; }
+
+.orejas {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 3px);
+  width: clamp(54px, 11.5vmin, 104px);
+  overflow: visible;
+  fill: #9aa1b0;
+  stroke: #5b6275;
+  stroke-width: 3;
+  stroke-linejoin: round;
+  transform: translateX(-50%) scaleY(0);
+  transform-origin: 50% 100%;
+  pointer-events: none;
+}
+.orejas .int { fill: #f4a6b6; stroke: none; }
+.resto-item .orejas { width: 40px; }
+
+/* Aparecen una por una durante el giro triste */
+.final.apagon .orejas {
+  animation:
+    orejas-sale .6s cubic-bezier(.2, 1.6, .4, 1) calc(.6s + var(--o, 0s)) forwards,
+    orejas-mueve 2.4s ease-in-out calc(1.3s + var(--o, 0s)) infinite;
+}
+@keyframes orejas-sale { to { transform: translateX(-50%) scaleY(1); } }
+@keyframes orejas-mueve {
+  0%, 100% { transform: translateX(-50%) rotate(-3deg); }
+  50%      { transform: translateX(-50%) rotate(3deg); }
+}
+.final.rapido .orejas { --o: 0s !important; }
+
+/* ---------- Teus triste ---------- */
+.teus {
+  position: fixed;
+  left: clamp(8px, 3vw, 48px);
+  bottom: 0;
+  z-index: 2;                       /* sobre el podio, debajo de la lluvia */
+  width: clamp(110px, 28vmin, 340px);
+  height: clamp(110px, 28vmin, 340px);
+  /* Busca la imagen "teustriste" con varias extensiones; se muestra la que exista */
+  background-image:
+    url("teustriste.png"), url("teustriste.webp"),
+    url("teustriste.jpg"), url("teustriste.jpeg"), url("teustriste.gif");
+  background-size: contain;
+  background-position: bottom center;
+  background-repeat: no-repeat;
+  transform-origin: 50% 100%;
+  opacity: 0;
+  transform: translateY(110%);
+  pointer-events: none;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .55));
+}
+.final.apagon .teus {
+  animation:
+    teus-entra .9s cubic-bezier(.2, 1.2, .4, 1) 1.2s forwards,
+    teus-triste 3.2s ease-in-out 2.1s infinite;
+}
+@keyframes teus-entra {
+  from { opacity: 0; transform: translateY(110%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes teus-triste {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(6px) rotate(-2.5deg); }
+}
+.final.rapido.apagon .teus { animation-delay: 0s, .9s; }
+
+@media (max-width: 560px) {
+  .teus { width: clamp(90px, 24vw, 130px); height: clamp(90px, 24vw, 130px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .final.apagon .orejas { transform: translateX(-50%); }
+  .final.apagon .teus { opacity: 1; transform: none; }
+}
+/* ---------- Corona mejorada ---------- */
+.corona {
+  width: clamp(52px, 11vmin, 96px);
+  filter: drop-shadow(0 0 14px rgba(255, 209, 102, .65));
+}
+.slot-cara .corona { margin: 0 0 0 calc(clamp(52px, 11vmin, 96px) / -2); }
+
+.corona .barrido { animation: barrido-corona 3.4s ease-in-out 2s infinite; }
+@keyframes barrido-corona {
+  0%       { transform: translateX(0); }
+  40%, 100% { transform: translateX(190px); }
+}
+
+.corona .chispa {
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: chispa 1.8s ease-in-out infinite;
+}
+@keyframes chispa {
+  0%, 100% { opacity: 0; transform: scale(.2) rotate(0deg); }
+  50%      { opacity: 1; transform: scale(1) rotate(45deg); }
+}
+
+/* Los JAJAJA un poco más grandes ahora que están solos */
+.risa { font-size: clamp(1.1rem, 3.6vmin, 2.4rem); }
+/* ---------- JAJAJA por toda la pantalla ---------- */
+.risas-pantalla {
+  position: fixed;
+  inset: 0;
+  z-index: 1;               /* detrás del podio */
+  overflow: hidden;
+  pointer-events: none;
+}
+.risa-p {
+  font-size: max(calc(var(--fs) * 1vmin), 14px);
+  opacity: 0;
+}
+.risa-p:nth-child(4n) { color: #ff8a4d; }    /* unos pocos en naranja para dar variedad */
+
+.final.apagon .risa-p { animation: risa-aparece .5s ease var(--ret) forwards; }
+@keyframes risa-aparece { to { opacity: var(--op); } }
+.final.rapido .risa-p { --ret: 0s !important; }
+
+/* La corona (ahora sin espacio especial) se cae en el giro triste */
+.final.apagon .puesto.ign-gana .corona { animation: corona-fuera .45s ease forwards; }

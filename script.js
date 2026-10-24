@@ -235,7 +235,7 @@ btnReiniciarGrande.addEventListener("click", () => {
 });
 
 // =====================================================
-//   AMPLIAR / VOLVER
+//   AMPLIAR: agranda el tablero (no toca la pantalla completa del navegador)
 // =====================================================
 const btnEnfocar = document.getElementById("enfocar");
 
@@ -245,21 +245,9 @@ function ponerModo(grande) {
   if (!grande) cancelarConfirmacion();
 }
 
-btnEnfocar.addEventListener("click", async () => {
-  const grande = !document.body.classList.contains("grande");
-  ponerModo(grande);
-  try {
-    if (grande && !document.fullscreenElement) {
-      await document.documentElement.requestFullscreen();
-    } else if (!grande && document.fullscreenElement) {
-      await document.exitFullscreen();
-    }
-  } catch (e) { /* si el navegador no permite pantalla completa, igual se agranda */ }
-});
-
-document.addEventListener("fullscreenchange", () => {
-  if (!document.fullscreenElement) ponerModo(false);
-});
+btnEnfocar.addEventListener("click", () =>
+  ponerModo(!document.body.classList.contains("grande"))
+);
 
 // =====================================================
 //   FINALIZAR: cuenta regresiva, podio y confeti
@@ -270,8 +258,10 @@ const podioEl      = document.getElementById("podio");
 const restoEl      = document.getElementById("resto");
 const cuentaEl     = document.getElementById("cuenta");
 const destelloEl   = document.getElementById("destello");
+const corazonEl    = document.getElementById("corazon");
 const btnFinalizar = document.getElementById("finalizar");
 
+// ----- Corona del 1er lugar -----
 const CORONA = `
 <svg class="corona" viewBox="-8 -12 136 104" aria-hidden="true">
   <defs>
@@ -329,48 +319,26 @@ const CORONA = `
   </g>
 </svg>`;
 
-const DIABLO = `
-  <svg class="diablo" viewBox="0 0 100 112" aria-hidden="true">
-    <defs>
-      <radialGradient id="dg-diablo" cx="38%" cy="32%" r="75%">
-        <stop offset="0" stop-color="#ff8a6b"/>
-        <stop offset=".55" stop-color="#e5262c"/>
-        <stop offset="1" stop-color="#9e0f18"/>
-      </radialGradient>
-    </defs>
-    <path d="M24 38 C8 30 4 12 16 2 C18 16 28 24 42 28 Z" fill="#7c0b12" stroke="#3d0509" stroke-width="2.5" stroke-linejoin="round"/>
-    <path d="M76 38 C92 30 96 12 84 2 C82 16 72 24 58 28 Z" fill="#7c0b12" stroke="#3d0509" stroke-width="2.5" stroke-linejoin="round"/>
-    <circle cx="50" cy="60" r="36" fill="url(#dg-diablo)" stroke="#5a0a10" stroke-width="3"/>
-    <path d="M20 44 L46 54 L47 47 L24 34 Z" fill="#3d0509"/>
-    <path d="M80 44 L54 54 L53 47 L76 34 Z" fill="#3d0509"/>
-    <path d="M26 56 Q36 48 46 57 Q36 64 26 56 Z" fill="#ffe14d" stroke="#3d0509" stroke-width="2" stroke-linejoin="round"/>
-    <path d="M74 56 Q64 48 54 57 Q64 64 74 56 Z" fill="#ffe14d" stroke="#3d0509" stroke-width="2" stroke-linejoin="round"/>
-    <ellipse cx="38" cy="57" rx="2.4" ry="5" fill="#1a0000"/>
-    <ellipse cx="62" cy="57" rx="2.4" ry="5" fill="#1a0000"/>
-    <circle cx="46" cy="68" r="1.6" fill="#7c0b12"/>
-    <circle cx="54" cy="68" r="1.6" fill="#7c0b12"/>
-    <g class="boca">
-      <path d="M24 72 Q50 104 76 72 Q50 82 24 72 Z" fill="#2a0306" stroke="#3d0509" stroke-width="2.5" stroke-linejoin="round"/>
-      <path d="M28 74 L33 79 L38 77 L44 85 L50 79 L56 85 L62 77 L67 79 L72 74 Q50 82 28 74 Z" fill="#fff"/>
-    </g>
-    <path d="M42 94 Q50 110 58 94 Q50 99 42 94 Z" fill="#3d0509"/>
-  </svg>`;
+// ----- Teus triste (aparece en el giro cuando gana Ignorance) -----
+const teusEl = document.createElement("div");
+teusEl.className = "teus";
+teusEl.setAttribute("aria-hidden", "true");
+finalEl.appendChild(teusEl);
 
-// [izquierda, arriba, rotación, tamaño]
-const POS_RISAS = [
-  ["-30%", "-30%", "-10deg", 1.2],
-  ["35%",  "-15%", "8deg",   1.35],
-  ["-45%", "25%",  "-6deg",  1.1],
-  ["42%",  "30%",  "10deg",  1.2],
-  ["0%",   "70%",  "-3deg",  1]
-];
-const RISAS = `<div class="risas" aria-hidden="true">${POS_RISAS.map(([l, t, r, s], i) =>
-  `<span class="risa" style="left:${l};top:${t};--r:${r};--s:${s};--d:${(i * 0.13).toFixed(2)}s">` +
-  `<b style="--n:0">JA</b><b style="--n:1">JA</b><b style="--n:2">JA</b></span>`).join("")}</div>`;
-
-// false = el diablito sale siempre que Ignorance esté en el podio
-// true  = sale solo cuando Ignorance gana
-const DIABLO_SOLO_SI_GANA = false;
+// Carga una sola imagen del Teus: la primera que exista (evita que se encimen varias)
+(function cargarTeus() {
+  const extensiones = ["png", "webp", "gif", "jpg", "jpeg"];
+  const probar = i => {
+    if (i >= extensiones.length) return;
+    const img = new Image();
+    img.onload = () => {
+      teusEl.style.backgroundImage = `url("teustriste.${extensiones[i]}")`;
+    };
+    img.onerror = () => probar(i + 1);
+    img.src = `teustriste.${extensiones[i]}`;
+  };
+  probar(0);
+})();
 
 let ganaIgnorance = false;
 
@@ -529,65 +497,12 @@ function gruposFinales() {
   return grupos;
 }
 
-// ----- Orejas de burro (para todos cuando gana Ignorance) -----
-const OREJAS = `
-  <svg class="orejas" viewBox="0 0 120 64" aria-hidden="true">
-    <path d="M34 62 C10 48 2 20 12 4 C30 8 44 32 46 62 Z"/>
-    <path class="int" d="M32 56 C16 44 10 24 15 12 C26 18 36 34 38 56 Z"/>
-    <path d="M86 62 C110 48 118 20 108 4 C90 8 76 32 74 62 Z"/>
-    <path class="int" d="M88 56 C104 44 110 24 105 12 C94 18 84 34 82 56 Z"/>
-  </svg>`;
-
-// ----- Teus triste (aparece en el giro cuando gana Ignorance) -----
-const teusEl = document.createElement("div");
-teusEl.className = "teus";
-teusEl.setAttribute("aria-hidden", "true");
-finalEl.appendChild(teusEl);
-
-// ---------- JAJAJA por toda la pantalla (giro triste) ----------
-const risasPantallaEl = document.createElement("div");
-risasPantallaEl.className = "risas-pantalla";
-risasPantallaEl.setAttribute("aria-hidden", "true");
-finalEl.appendChild(risasPantallaEl);
-
-function llenarRisasPantalla() {
-  const horizontal = window.innerWidth > window.innerHeight;
-  const columnas = horizontal ? 6 : 4;
-  const filas    = horizontal ? 5 : 8;
-  let html = "";
-
-  for (let f = 0; f < filas; f++) {
-    for (let c = 0; c < columnas; c++) {
-      const izq = c * (100 / columnas) + Math.random() * (100 / columnas) * .55 - 3;
-      const arr = f * (100 / filas)    + Math.random() * (100 / filas) * .6  - 2;
-      const unidades = 2 + Math.floor(Math.random() * 4);          // JA x2 hasta x5
-      const tam = (2.4 + Math.random() * 3.6).toFixed(1);          // tamaño (vmin)
-      const rot = Math.round(-22 + Math.random() * 44);            // inclinación
-      const op  = (.3 + Math.random() * .55).toFixed(2);           // unos más tenues
-      const ret = (.2 + Math.random() * 1.6).toFixed(2);           // aparecen escalonados
-      const d   = (Math.random() * .5).toFixed(2);
-      const letras = Array.from({ length: unidades }, (_, i) => `<b style="--n:${i}">JA</b>`).join("");
-
-      html += `<span class="risa risa-p" style="left:${izq.toFixed(1)}%;top:${arr.toFixed(1)}%;` +
-              `--r:${rot}deg;--s:1;--fs:${tam};--op:${op};--ret:${ret}s;--d:${d}s">${letras}</span>`;
-    }
-  }
-  risasPantallaEl.innerHTML = html;
-}
-
 // ---------- Construir podio y resto ----------
 function construirFinal(grupos) {
   const delPodio = grupos.filter(g => g.rango <= 3);
   const ordenVisual = [2, 1, 3]
     .map(r => delPodio.find(g => g.rango === r))
     .filter(Boolean);
-
-  // Orejas escalonadas: salen una tras otra
-  let n = 0;
-  const orejasPara = nombre => {
-    if (!ganaIgnorance || nombre === "Ignorance") return "";
-    return OREJAS.replace("<svg ", `<svg style="--o:${(n++ * 0.12).toFixed(2)}s" `);
-  };
 
   podioEl.innerHTML = ordenVisual.map(g => {
     const ignGana = g.rango === 1 && g.miembros.some(p => p.nombre === "Ignorance");
@@ -596,15 +511,11 @@ function construirFinal(grupos) {
     <div class="puesto r${g.rango}${ignGana ? " ign-gana" : ""}">
       ${g.rango === 1 ? CORONA : ""}
       <div class="ganadores">
-        ${g.miembros.map(p => {
-          const o = orejasPara(p.nombre);
-          return `
-          <div class="ganador${p.nombre === "Ignorance" ? " es-ign" : ""}${o ? " con-orejas" : ""}" style="--color:${p.color}">
-            ${o}
+        ${g.miembros.map(p => `
+          <div class="ganador${p.nombre === "Ignorance" ? " es-ign" : ""}" style="--color:${p.color}">
             <span class="g-nombre"><i class="g-punto"></i>${p.nombre}</span>
             <span class="g-km"><b data-km="${p.km}">0</b><small>km</small></span>
-          </div>`;
-        }).join("")}
+          </div>`).join("")}
       </div>
       <div class="pedestal"><span>${g.rango}º</span></div>
     </div>`;
@@ -612,13 +523,10 @@ function construirFinal(grupos) {
 
   restoEl.innerHTML = grupos
     .filter(g => g.rango > 3)
-    .flatMap(g => g.miembros.map(p => {
-      const o = orejasPara(p.nombre);
-      return `
-      <span class="resto-item${o ? " con-orejas" : ""}" style="--color:${p.color}">
-        ${o}<b>${g.rango}º</b><i class="g-punto"></i>${p.nombre} · ${p.km} km
-      </span>`;
-    }))
+    .flatMap(g => g.miembros.map(p => `
+      <span class="resto-item" style="--color:${p.color}">
+        <b>${g.rango}º</b><i class="g-punto"></i>${p.nombre} · ${p.km} km
+      </span>`))
     .join("");
 }
 
@@ -653,12 +561,42 @@ function revelarPuesto(puesto) {
   }
 }
 
+// ---------- Piso: onda de choque y polvo del impacto ----------
+const sueloEl = document.createElement("div");
+sueloEl.className = "c-suelo";
+sueloEl.setAttribute("aria-hidden", "true");
+sueloEl.innerHTML = `<i class="c-choque"></i>` + Array.from({ length: 9 }, (_, i) => {
+  const lado = i % 2 ? 1 : -1;
+  const dx = (lado * (6 + Math.random() * 20)).toFixed(1);
+  const dy = (3 + Math.random() * 8).toFixed(1);
+  const t  = (3 + Math.random() * 4).toFixed(1);
+  const d  = (Math.random() * .12).toFixed(2);
+  return `<i class="c-polvo" style="--dx:${dx}vmin;--dy:${dy}vmin;--t:${t}vmin;--d:${d}s"></i>`;
+}).join("");
+finalEl.appendChild(sueloEl);
+
+// ---------- Corazón que se parte ----------
+function romperCorazon() {
+  corazonEl.classList.remove("rompe");
+  void corazonEl.offsetWidth;
+
+  // Distancia que deben caer las mitades para salir por completo de la pantalla
+  const r = corazonEl.getBoundingClientRect();
+  const escala = r.width / 200;   // px de pantalla por unidad del dibujo
+  corazonEl.style.setProperty("--caida", (((window.innerHeight - r.top) / escala) + 40).toFixed(0));
+
+  corazonEl.classList.add("rompe");
+}
+
+// El podio no se puede desplazar (ni con rueda ni con el dedo)
+["wheel", "touchmove"].forEach(ev =>
+  finalEl.addEventListener(ev, e => e.preventDefault(), { passive: false })
+);
+
 // ---------- Estado triste (cuando gana Ignorance) ----------
 function ponerTriste() {
-  llenarRisasPantalla();
   finalEl.classList.remove("ganador");   // se apagan los rayos de luz
-  finalEl.classList.add("apagon");       // gris, viñeta, corona fuera y entra el diablito
-  document.getElementById("final-sub").textContent = "Ganó la ignorancia… · Grupo " + grupoActual;
+  finalEl.classList.add("apagon");       // gris, viñeta, corona fuera y entra el Teus
   iniciarLluviaTriste();
 }
 
@@ -669,6 +607,7 @@ function giroTriste() {
   en(900, () => reanimar(destelloEl, "rayo"));
   sacudir();
   ponerTriste();
+  en(600, romperCorazon);                // el corazón aparece y se parte
 }
 
 // ---------- Secuencia completa ----------
@@ -697,8 +636,8 @@ function iniciarSecuencia() {
   if (ganaIgnorance) {
     // Primero se celebra normal y casi al final llega el giro triste
     en(t + 2800, giroTriste);
-    en(t + 4600, () => finalEl.classList.add("resto-visible"));
-    en(t + 5600, () => finalEl.classList.add("listo"));
+    en(t + 6600, () => finalEl.classList.add("resto-visible"));
+    en(t + 7600, () => finalEl.classList.add("listo"));
   } else {
     en(t + 2200, () => finalEl.classList.add("resto-visible"));
     en(t + 3200, () => finalEl.classList.add("listo"));
@@ -743,7 +682,6 @@ function finalizar() {
   ganaIgnorance = grupos[0].miembros.some(p => p.nombre === "Ignorance");
 
   construirFinal(grupos);
-  document.getElementById("final-sub").textContent = "Resultados finales · Grupo " + grupoActual;
   ajustarLienzo();
   finalEl.classList.add("abierto");
   finalEl.setAttribute("aria-hidden", "false");
@@ -757,6 +695,7 @@ function cerrarFinal() {
   limpiarConfeti();
   finalEl.classList.remove("abierto", "titulo-visible", "ganador", "resto-visible",
                            "listo", "rapido", "apagon");
+  corazonEl.classList.remove("rompe");
   destelloEl.classList.remove("on", "rayo");
   finalEl.setAttribute("aria-hidden", "true");
   cuentaEl.innerHTML = "";
@@ -775,6 +714,7 @@ document.getElementById("nueva").addEventListener("click", () => {
 document.addEventListener("keydown", e => {
   if (e.key === "Escape" && finalEl.classList.contains("abierto")) cerrarFinal();
 });
+
 // =====================================================
 //   SELECTOR DE GRUPO (1, 2, 3)
 // =====================================================
@@ -842,6 +782,34 @@ document.addEventListener("keydown", e => {
 });
 
 marcarGrupo();
+
+// =====================================================
+//   PANTALLA COMPLETA DEL NAVEGADOR (oculta pestañas y barras)
+// =====================================================
+const btnPantalla = document.getElementById("btn-pantalla");
+const raiz = document.documentElement;
+
+const pedirPantalla = raiz.requestFullscreen || raiz.webkitRequestFullscreen;
+const salirPantalla = document.exitFullscreen || document.webkitExitFullscreen;
+
+function enPantallaCompleta() {
+  return !!(document.fullscreenElement || document.webkitFullscreenElement);
+}
+function actualizarBotonPantalla() {
+  btnPantalla.classList.toggle("activo", enPantallaCompleta());
+}
+
+// En iPhone el navegador no permite pantalla completa: ahí se oculta el botón
+if (!pedirPantalla) btnPantalla.hidden = true;
+
+btnPantalla.addEventListener("click", async () => {
+  try {
+    if (enPantallaCompleta()) await salirPantalla.call(document);
+    else await pedirPantalla.call(raiz);
+  } catch (e) { /* el navegador no lo permitió */ }
+});
+document.addEventListener("fullscreenchange", actualizarBotonPantalla);
+document.addEventListener("webkitfullscreenchange", actualizarBotonPantalla);
 
 // =====================================================
 //   INICIO

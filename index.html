@@ -18,7 +18,6 @@
     <header class="cabecera">
       <h1>Leaderboard</h1>
       <div class="acciones">
-        <span class="sello">Top 6</span>
         <button id="reiniciar-grande" class="btn-enfocar btn-reiniciar-grande" type="button">↺ Reiniciar</button>
         <button id="enfocar" class="btn-enfocar" type="button">⛶ Ampliar</button>
         <button id="finalizar" class="btn-enfocar btn-finalizar" type="button">🏁 Finalizar</button>
@@ -80,65 +79,83 @@
       </div>
     </div>
 
-    <!-- Corazón que se parte (solo cuando gana Ignorance) -->
-    <div id="corazon" class="corazon-roto" aria-hidden="true">
-      <i class="c-onda" style="--t:.7s"></i>
-      <i class="c-onda" style="--t:1.6s"></i>
-      <i class="c-onda c-onda-blanca" style="--t:2.85s"></i>
+<!-- Corazón que se parte (solo cuando gana Ignorance) -->
+<div id="corazon" class="corazon-roto" aria-hidden="true">
+  <i class="c-onda"></i>
 
-      <svg class="c-svg" viewBox="0 0 200 180">
-        <defs>
-          <linearGradient id="cor-g" x1="0.15" y1="0" x2="0.85" y2="1">
-            <stop offset="0" stop-color="#ff7d97"/>
-            <stop offset=".5" stop-color="#ee2f58"/>
-            <stop offset="1" stop-color="#a80f32"/>
-          </linearGradient>
-          <clipPath id="cor-izq">
-            <polygon points="-40,-40 100,-40 100,32 92,52 108,72 90,96 106,118 94,140 100,170 100,220 -40,220"/>
-          </clipPath>
-          <clipPath id="cor-der">
-            <polygon points="240,-40 100,-40 100,32 92,52 108,72 90,96 106,118 94,140 100,170 100,220 240,220"/>
-          </clipPath>
-        </defs>
+  <svg class="c-svg" viewBox="0 0 200 180">
+    <defs>
+      <linearGradient id="cor-g" x1="0.15" y1="0" x2="0.85" y2="1">
+        <stop offset="0" stop-color="#c93a56"/>
+        <stop offset=".5" stop-color="#8e1432"/>
+        <stop offset="1" stop-color="#4d0818"/>
+      </linearGradient>
+      <clipPath id="cor-izq">
+        <polygon points="-40,-40 100,-40 100,32 92,52 108,72 90,96 106,118 94,140 100,170 100,220 -40,220"/>
+      </clipPath>
+      <clipPath id="cor-der">
+        <polygon points="240,-40 100,-40 100,32 92,52 108,72 90,96 106,118 94,140 100,170 100,220 240,220"/>
+      </clipPath>
 
-        <g class="c-mitad c-izq">
-          <g clip-path="url(#cor-izq)">
-            <path d="M100 170 C20 110 0 70 0 45 C0 18 20 0 48 0 C70 0 90 12 100 32 C110 12 130 0 152 0 C180 0 200 18 200 45 C200 70 180 110 100 170 Z"
-                  fill="url(#cor-g)" stroke="#7a0f2c" stroke-width="3" stroke-linejoin="round"/>
-            <ellipse cx="46" cy="32" rx="20" ry="11" fill="#fff" opacity=".3" transform="rotate(-28 46 32)"/>
-          </g>
-          <polyline class="c-borde" points="100,32 92,52 108,72 90,96 106,118 94,140 100,170"/>
+      <!-- Dibujo de cada mitad (se reutiliza para la estela) -->
+      <g id="dibujo-izq">
+        <g clip-path="url(#cor-izq)">
+          <path d="M100 170 C20 110 0 70 0 45 C0 18 20 0 48 0 C70 0 90 12 100 32 C110 12 130 0 152 0 C180 0 200 18 200 45 C200 70 180 110 100 170 Z"
+                fill="url(#cor-g)" stroke="#2a0410" stroke-width="3" stroke-linejoin="round"/>
+          <ellipse cx="46" cy="32" rx="20" ry="11" fill="#fff" opacity=".22" transform="rotate(-28 46 32)"/>
         </g>
-
-        <g class="c-mitad c-der">
-          <g clip-path="url(#cor-der)">
-            <path d="M100 170 C20 110 0 70 0 45 C0 18 20 0 48 0 C70 0 90 12 100 32 C110 12 130 0 152 0 C180 0 200 18 200 45 C200 70 180 110 100 170 Z"
-                  fill="url(#cor-g)" stroke="#7a0f2c" stroke-width="3" stroke-linejoin="round"/>
-          </g>
-          <polyline class="c-borde" points="100,32 92,52 108,72 90,96 106,118 94,140 100,170"/>
+      </g>
+      <g id="dibujo-der">
+        <g clip-path="url(#cor-der)">
+          <path d="M100 170 C20 110 0 70 0 45 C0 18 20 0 48 0 C70 0 90 12 100 32 C110 12 130 0 152 0 C180 0 200 18 200 45 C200 70 180 110 100 170 Z"
+                fill="url(#cor-g)" stroke="#2a0410" stroke-width="3" stroke-linejoin="round"/>
         </g>
+      </g>
+    </defs>
 
-        <polyline class="c-grieta" points="100,32 92,52 108,72 90,96 106,118 94,140 100,170"/>
-      </svg>
+    <!-- Estela (copias translúcidas que se quedan atrás) -->
+    <g class="c-mitad c-izq fantasma f3"><use href="#dibujo-izq"/></g>
+    <g class="c-mitad c-der fantasma f3"><use href="#dibujo-der"/></g>
+    <g class="c-mitad c-izq fantasma f2"><use href="#dibujo-izq"/></g>
+    <g class="c-mitad c-der fantasma f2"><use href="#dibujo-der"/></g>
+    <g class="c-mitad c-izq fantasma f1"><use href="#dibujo-izq"/></g>
+    <g class="c-mitad c-der fantasma f1"><use href="#dibujo-der"/></g>
 
-      <span class="trozo" style="--ox:48%;--oy:20%;--dx:-24vmin;--dy:-12vmin;--rot:-240deg;--k:1.3"></span>
-      <span class="trozo" style="--ox:52%;--oy:30%;--dx:22vmin;--dy:-16vmin;--rot:200deg;--k:1"></span>
-      <span class="trozo" style="--ox:47%;--oy:42%;--dx:-30vmin;--dy:6vmin;--rot:-300deg;--k:.8"></span>
-      <span class="trozo" style="--ox:53%;--oy:50%;--dx:28vmin;--dy:10vmin;--rot:260deg;--k:1.2"></span>
-      <span class="trozo" style="--ox:49%;--oy:58%;--dx:-16vmin;--dy:22vmin;--rot:-180deg;--k:.9"></span>
-      <span class="trozo" style="--ox:51%;--oy:66%;--dx:18vmin;--dy:26vmin;--rot:220deg;--k:1.1"></span>
-      <span class="trozo" style="--ox:50%;--oy:75%;--dx:-8vmin;--dy:30vmin;--rot:-120deg;--k:.7"></span>
-      <span class="trozo" style="--ox:50%;--oy:24%;--dx:6vmin;--dy:-26vmin;--rot:160deg;--k:.8"></span>
-      <span class="trozo" style="--ox:46%;--oy:36%;--dx:-34vmin;--dy:-4vmin;--rot:-280deg;--k:.7"></span>
-      <span class="trozo" style="--ox:54%;--oy:38%;--dx:34vmin;--dy:-2vmin;--rot:300deg;--k:.9"></span>
-      <span class="trozo" style="--ox:48%;--oy:82%;--dx:-12vmin;--dy:34vmin;--rot:-200deg;--k:1"></span>
-      <span class="trozo" style="--ox:52%;--oy:80%;--dx:14vmin;--dy:32vmin;--rot:240deg;--k:.8"></span>
-    </div>
+    <!-- Las dos mitades -->
+    <g class="c-mitad c-izq">
+      <use href="#dibujo-izq"/>
+      <polyline class="c-borde" points="100,32 92,52 108,72 90,96 106,118 94,140 100,170"/>
+    </g>
+    <g class="c-mitad c-der">
+      <use href="#dibujo-der"/>
+      <polyline class="c-borde" points="100,32 92,52 108,72 90,96 106,118 94,140 100,170"/>
+    </g>
+
+    <polyline class="c-grieta" points="100,32 92,52 108,72 90,96 106,118 94,140 100,170"/>
+  </svg>
+
+  <i class="c-luz"></i>
+
+  <span class="trozo" style="--ox:48%;--oy:20%;--dx:-24vmin;--dy:-12vmin;--rot:-240deg;--k:1.3"></span>
+  <span class="trozo" style="--ox:52%;--oy:30%;--dx:22vmin;--dy:-16vmin;--rot:200deg;--k:1"></span>
+  <span class="trozo" style="--ox:47%;--oy:42%;--dx:-30vmin;--dy:6vmin;--rot:-300deg;--k:.8"></span>
+  <span class="trozo" style="--ox:53%;--oy:50%;--dx:28vmin;--dy:10vmin;--rot:260deg;--k:1.2"></span>
+  <span class="trozo" style="--ox:49%;--oy:58%;--dx:-16vmin;--dy:22vmin;--rot:-180deg;--k:.9"></span>
+  <span class="trozo" style="--ox:51%;--oy:66%;--dx:18vmin;--dy:26vmin;--rot:220deg;--k:1.1"></span>
+  <span class="trozo" style="--ox:50%;--oy:75%;--dx:-8vmin;--dy:30vmin;--rot:-120deg;--k:.7"></span>
+  <span class="trozo" style="--ox:50%;--oy:24%;--dx:6vmin;--dy:-26vmin;--rot:160deg;--k:.8"></span>
+  <span class="trozo" style="--ox:46%;--oy:36%;--dx:-34vmin;--dy:-4vmin;--rot:-280deg;--k:.7"></span>
+  <span class="trozo" style="--ox:54%;--oy:38%;--dx:34vmin;--dy:-2vmin;--rot:300deg;--k:.9"></span>
+  <span class="trozo" style="--ox:48%;--oy:82%;--dx:-12vmin;--dy:34vmin;--rot:-200deg;--k:1"></span>
+  <span class="trozo" style="--ox:52%;--oy:80%;--dx:14vmin;--dy:32vmin;--rot:240deg;--k:.8"></span>
+</div>
 
     <button id="saltar" class="btn-enfocar saltar" type="button">Saltar ›</button>
   </section>
 
   <div id="efectos"></div>
   <script src="script.js"></script>
+</body>
+</html>
 </body>
 </html>

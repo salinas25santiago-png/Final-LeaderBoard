@@ -578,6 +578,7 @@ finalEl.appendChild(sueloEl);
 // ---------- Corazón que se parte ----------
 function romperCorazon() {
   corazonEl.classList.remove("rompe");
+  corazonEl.querySelectorAll(".chispa-c").forEach(c => c.remove());
   void corazonEl.offsetWidth;
 
   // Distancia que deben caer las mitades para salir por completo de la pantalla
@@ -585,7 +586,31 @@ function romperCorazon() {
   const escala = r.width / 200;   // px de pantalla por unidad del dibujo
   corazonEl.style.setProperty("--caida", (((window.innerHeight - r.top) / escala) + 40).toFixed(0));
 
+  // Chispas que salen de la grieta en el instante del corte
+  const colores = ["#ffffff", "#ffd1dc", "#ff7a92", "#ffb347"];
+  for (let i = 0; i < 30; i++) {
+    const c = document.createElement("i");
+    c.className = "chispa-c";
+    const lado = i % 2 ? 1 : -1;
+    const ang = (Math.random() - .5) * 1.5;
+    const fuerza = 14 + Math.random() * 30;
+    c.style.cssText =
+      `--oy:${(22 + Math.random() * 60).toFixed(0)}%;` +
+      `--dx:${(lado * fuerza * Math.cos(ang)).toFixed(1)}vmin;` +
+      `--dy:${(fuerza * Math.sin(ang) * .8 + 6 + Math.random() * 12).toFixed(1)}vmin;` +
+      `--s:${(.35 + Math.random() * .7).toFixed(2)};` +
+      `--d:${(Math.random() * .12).toFixed(2)}s;` +
+      `background:${colores[i % colores.length]}`;
+    corazonEl.appendChild(c);
+  }
+
   corazonEl.classList.add("rompe");
+
+  // En el instante exacto del corte: destello carmesí y temblor de pantalla
+  en(1450, () => {
+    reanimar(destelloEl, "carmesi");
+    sacudir();
+  });
 }
 
 // El podio no se puede desplazar (ni con rueda ni con el dedo)
@@ -696,7 +721,8 @@ function cerrarFinal() {
   finalEl.classList.remove("abierto", "titulo-visible", "ganador", "resto-visible",
                            "listo", "rapido", "apagon");
   corazonEl.classList.remove("rompe");
-  destelloEl.classList.remove("on", "rayo");
+  destelloEl.classList.remove("on", "rayo", "carmesi");
+  corazonEl.querySelectorAll(".chispa-c").forEach(c => c.remove());
   finalEl.setAttribute("aria-hidden", "true");
   cuentaEl.innerHTML = "";
   document.body.classList.remove("con-final");
